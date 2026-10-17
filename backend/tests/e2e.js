@@ -22,6 +22,13 @@ const login = async (email, password, role) => (await call('POST', '/auth/login'
   ok('login response hides password', !JSON.stringify(a.json).includes('password'));
   ok('wrong password 401', (await login('admin@internhub.com', 'nope12345', 'admin')).status === 401);
   ok('intern cannot log in as admin', (await login('ali@internhub.com', 'Intern@123', 'admin')).status === 401);
+  const signupEmail = `signup-${Date.now()}@example.com`;
+  const signup = await call('POST', '/auth/register', { body: { name: 'Self Registered', email: signupEmail, password: 'StrongPass1', role: 'admin' } });
+  ok('public registration creates an intern and signs them in', signup.status === 201 && signup.json.user.role === 'intern' && signup.json.token, JSON.stringify(signup.json));
+  ok('registration response hides password', !JSON.stringify(signup.json).includes('password'));
+  ok('duplicate registration -> 409', (await call('POST', '/auth/register', { body: { name: 'Duplicate', email: signupEmail, password: 'StrongPass1' } })).status === 409);
+  ok('weak registration password -> 400', (await call('POST', '/auth/register', { body: { name: 'Weak Password', email: `weak-${Date.now()}@example.com`, password: 'short' } })).status === 400);
+  ok('registration fixture cleanup', (await call('DELETE', `/interns/${signup.json.user._id}?permanent=true`, { token: A })).status === 200);
   const i = await login('ali@internhub.com', 'Intern@123', 'intern'); ok('intern login', i.status === 200);
   const ALI = i.json.token, aliId = i.json.user._id;
   const s = await login('sara@internhub.com', 'Intern@123', 'intern'); const SARA = s.json.token;

@@ -4,6 +4,7 @@ import ProtectedRoute, { RootRedirect } from './components/common/ProtectedRoute
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AppLayout from './layouts/AppLayout';
 import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
 import { ROLES } from './utils/constants';
 
 // Pages are code-split; AppLayout provides the Suspense fallback.
@@ -30,6 +31,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RootRedirect />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<ProtectedRoute roles={[ROLES.ADMIN]} />}>
           <Route path="/admin" element={<AppLayout />}>

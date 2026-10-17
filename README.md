@@ -7,7 +7,7 @@ Full-stack platform to onboard interns, assign tasks, review submissions, give f
 ## Features
 | Area | Highlights |
 |------|-----------|
-| Auth | JWT + bcrypt, Admin and Intern roles, protected routes, auto sign-out on expired tokens |
+| Auth | JWT + bcrypt, Admin and Intern roles, intern self-registration, protected routes, auto sign-out on expired tokens |
 | Admin | KPI dashboard with charts and date filters, interns CRUD + profiles, tasks (table + kanban), submission review (approve / revise / reject + rating), reports |
 | Intern | Personal dashboard, my tasks (table + board), progress updates, submit work (text / link / files), submissions, feedback, progress report |
 | Platform | Notifications + activity timeline, **global search (Ctrl+K or /)**, CSV export, printable reports, light / dark / system theme, mobile drawer navigation, error boundaries |
@@ -72,7 +72,7 @@ Frontend env (`frontend/.env`): `VITE_API_URL` (empty in dev; full API URL in pr
 - App shell: collapsible sidebar (drawer on mobile), top bar, notification bell (live unread count, mark read), user menu, light / dark / system theme (no flash on load), skip-to-content link
 - UI kit (`src/components/ui`): Button, Input / PasswordInput / Textarea / Select / TagInput, Card, Badge, ProgressBar / ProgressRing, Avatar, Modal (focus trap, Esc), ConfirmDialog, Popover / Dropdown, DataTable (sorting, skeletons, empty and error states) with Pagination, Tabs, StatCard, PageHeader, Skeletons, EmptyState / ErrorState, Toasts, ErrorBoundary
 - Hooks: `useFetch`, `useForm` (with server-validation mapping), `useDebounce`, `useDisclosure`, `useLocalStorage`, `useClickOutside`
-- Pages: Login (Admin / Intern toggle), Admin dashboard (8 live stat cards, status distribution, upcoming deadlines, recent activity), Intern dashboard (progress ring, stats, deadlines, feedback), Settings (profile + avatar, password change, appearance), 404
+- Pages: Login (Admin / Intern toggle), intern registration, Admin dashboard (8 live stat cards, status distribution, upcoming deadlines, recent activity), Intern dashboard (progress ring, stats, deadlines, feedback), Settings (profile + avatar, password change, appearance), 404
 - Sidebar entries for pages that ship in later phases are shown disabled with a "Soon" tag, so there are no dead links
 
 ## Environment variables
@@ -85,6 +85,7 @@ Frontend env (`frontend/.env`): `VITE_API_URL` (empty in dev; full API URL in pr
 | `JWT_EXPIRES_IN` | Token lifetime | 7d |
 | `CLIENT_URL` | Allowed CORS origin(s), comma separated | http://localhost:5173 |
 | `LOGIN_RATE_LIMIT` | Max login attempts per IP per 15 min | 20 |
+| `REGISTRATION_RATE_LIMIT` | Max intern registration attempts per IP per hour | 5 |
 | `DISABLE_CRON` | `true` disables the deadline scheduler | false |
 
 ## Scripts

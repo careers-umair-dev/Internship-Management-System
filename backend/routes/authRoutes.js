@@ -14,11 +14,34 @@ const loginLimiter = rateLimit({
   message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' },
 });
 
+const registrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: Number(process.env.REGISTRATION_RATE_LIMIT) || 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many registration attempts. Please try again in an hour.' },
+});
+
 const passwordRule = (field) =>
   body(field)
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
     .matches(/[A-Za-z]/).withMessage('Password must contain a letter')
     .matches(/\d/).withMessage('Password must contain a number');
+
+router.post(
+  '/register',
+  registrationLimiter,
+  [
+    body('name').trim().isLength({ min: 2, max: 80 }).withMessage('Name must be 2-80 characters'),
+    body('email').isEmail().withMessage('A valid email is required').normalizeEmail(),
+    passwordRule('password'),
+    body('phone').optional({ checkFalsy: true }).trim().isLength({ min: 7, max: 20 }).withMessage('Invalid phone number'),
+    body('department').optional().trim().isLength({ max: 60 }).withMessage('Department must be at most 60 characters'),
+    body('position').optional().trim().isLength({ max: 60 }).withMessage('Position must be at most 60 characters'),
+  ],
+  validate,
+  ctrl.registerIntern
+);
 
 router.post(
   '/login',

@@ -8,7 +8,7 @@ import { internService } from '../services/internService';
 import { notificationService } from '../services/notificationService';
 import { tokenStore } from '../services/api';
 
-vi.mock('../services/authService', () => ({ authService: { login: vi.fn(), me: vi.fn(), updateProfile: vi.fn(), changePassword: vi.fn(), uploadAvatar: vi.fn() } }));
+vi.mock('../services/authService', () => ({ authService: { login: vi.fn(), register: vi.fn(), me: vi.fn(), updateProfile: vi.fn(), changePassword: vi.fn(), uploadAvatar: vi.fn() } }));
 vi.mock('../services/dashboardService', () => ({ dashboardService: { admin: vi.fn(), intern: vi.fn() } }));
 vi.mock('../services/internService', () => ({ internService: { list: vi.fn() } }));
 vi.mock('../services/notificationService', () => ({ notificationService: { unreadCount: vi.fn(), list: vi.fn(), markRead: vi.fn(), markAllRead: vi.fn() } }));
@@ -95,6 +95,45 @@ describe('login', () => {
     expect(await screen.findByRole('heading', { name: /welcome back, ali/i })).toBeInTheDocument();
     expect(await screen.findByText('Assigned tasks')).toBeInTheDocument();
     expect(screen.getByText('Excellent work!')).toBeInTheDocument();
+  });
+});
+
+describe('registration', () => {
+  it('validates all fields and matching passwords before calling the API', async () => {
+    renderApp('/register');
+    await userEvent.click(await screen.findByRole('button', { name: /create intern account/i }));
+    expect(await screen.findByText('Name is required')).toBeInTheDocument();
+    expect(screen.getByText('Email is required')).toBeInTheDocument();
+    expect(screen.getByText('Password is required')).toBeInTheDocument();
+    expect(screen.getByText('Confirm your password')).toBeInTheDocument();
+    expect(authService.register).not.toHaveBeenCalled();
+  });
+
+  it('creates an intern account, stores the token and opens the intern dashboard', async () => {
+    authService.register.mockResolvedValue({ token: 'new-jwt', user: internUser });
+    renderApp('/register');
+    await userEvent.type(await screen.findByLabelText(/full name/i), 'Ali Raza');
+    await userEvent.type(screen.getByLabelText(/email/i), 'ali@internhub.com');
+    await userEvent.type(screen.getByLabelText(/^password/i), 'Intern@123');
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'Intern@123');
+    await userEvent.click(screen.getByRole('button', { name: /create intern account/i }));
+
+    await waitFor(() => expect(authService.register).toHaveBeenCalledWith({
+      name: 'Ali Raza', email: 'ali@internhub.com', password: 'Intern@123',
+    }));
+    await waitFor(() => expect(document.querySelector('a[href="/intern/dashboard"][aria-current="page"]')).not.toBeNull());
+    expect(tokenStore.get()).toBe('new-jwt');
+  });
+
+  it('shows a duplicate-email server error', async () => {
+    authService.register.mockRejectedValue({ response: { status: 409, data: { message: 'A record with this email already exists' } } });
+    renderApp('/register');
+    await userEvent.type(await screen.findByLabelText(/full name/i), 'Ali Raza');
+    await userEvent.type(screen.getByLabelText(/email/i), 'ali@internhub.com');
+    await userEvent.type(screen.getByLabelText(/^password/i), 'Intern@123');
+    await userEvent.type(screen.getByLabelText(/confirm password/i), 'Intern@123');
+    await userEvent.click(screen.getByRole('button', { name: /create intern account/i }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('A record with this email already exists');
   });
 });
 

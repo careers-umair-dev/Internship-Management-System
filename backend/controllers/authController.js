@@ -36,6 +36,27 @@ exports.login = asyncHandler(async (req, res) => {
   res.json({ success: true, token: signToken(user), user });
 });
 
+// POST /api/auth/register  (public intern self-registration)
+exports.registerIntern = asyncHandler(async (req, res) => {
+  const { name, email, password, phone, department, position } = req.body;
+  const user = await Intern.create({ name, email, password, phone, department, position });
+
+  logActivity({
+    actor: user,
+    action: 'auth.register',
+    entityType: 'Auth',
+    intern: user._id,
+    description: `${user.name} created an intern account`,
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Intern account created',
+    token: signToken(user),
+    user,
+  });
+});
+
 // GET /api/auth/me
 exports.getMe = asyncHandler(async (req, res) => {
   const user = req.user.role === 'intern' ? await Intern.findById(req.user._id).populate('mentor', 'name email') : req.user;

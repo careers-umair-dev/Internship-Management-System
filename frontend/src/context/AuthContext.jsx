@@ -43,16 +43,24 @@ export function AuthProvider({ children }) {
     return u;
   }, []);
 
+  const register = useCallback(async (data) => {
+    const { token, user: u } = await authService.register(data);
+    tokenStore.set(token);
+    setUser(u);
+    return u;
+  }, []);
+
   const value = useMemo(() => ({
     user,
     booting,
     isAuthenticated: !!user,
     role: user?.role || null,
     login,
+    register,
     logout,
     updateUser: (patch) => setUser((prev) => ({ ...prev, ...patch })),
     replaceToken: (token) => tokenStore.set(token),
-  }), [user, booting, login, logout]);
+  }), [user, booting, login, register, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

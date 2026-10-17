@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, ShieldCheck, GraduationCap, AlertCircle } from 'lucide-react';
 import AuthLayout from '../../layouts/AuthLayout';
 import { Button, Input, PasswordInput } from '../../components/ui';
@@ -80,6 +80,10 @@ export default function LoginPage() {
           {form.submitting ? 'Signing in...' : `Sign in as ${role === 'admin' ? 'Admin' : 'Intern'}`}
         </Button>
       </form>
+
+      <p className="mt-6 text-center text-sm text-muted">
+        New intern? <Link to="/register" className="font-medium text-link hover:underline">Create an account</Link>
+      </p>
 
       {import.meta.env.DEV && (
         <div className="mt-8 rounded-xl border border-dashed border-border p-4">
