@@ -1,0 +1,64 @@
+@import '@fontsource-variable/inter';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens (RGB triplets so Tailwind opacity modifiers work) */
+:root {
+  --background: 248 250 252;
+  --surface: 255 255 255;
+  --subtle: 241 245 249;
+  --border: 226 232 240;
+  --foreground: 15 23 42;
+  --muted: 100 116 139;
+  --primary: 79 70 229;
+  --link: 79 70 229;
+  --success: 5 150 105;
+  --warning: 217 119 6;
+  --danger: 220 38 38;
+  --info: 2 132 199;
+  --shadow: 15 23 42;
+  color-scheme: light;
+}
+.dark {
+  --background: 9 11 17;
+  --surface: 17 20 29;
+  --subtle: 26 30 42;
+  --border: 40 46 62;
+  --foreground: 241 245 249;
+  --muted: 148 163 184;
+  --primary: 99 102 241;
+  --link: 165 180 252;
+  --success: 52 211 153;
+  --warning: 251 191 36;
+  --danger: 248 113 113;
+  --info: 56 189 248;
+  --shadow: 0 0 0;
+  color-scheme: dark;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+  *:focus-visible { @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background; }
+  ::selection { @apply bg-primary/20; }
+  * { scrollbar-width: thin; scrollbar-color: rgb(var(--border)) transparent; }
+}
+
+@layer utilities {
+  .skeleton { @apply relative overflow-hidden bg-subtle rounded-md; }
+  .skeleton::after {
+    content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(var(--surface) / 0.7), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton::after { animation: none; }
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; color: black; }
+}
